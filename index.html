@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JobMatch - Piattaforma Incrocio Domanda-Offerta</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <!-- Header e Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <h1>JobMatch</h1>
+            </div>
+            
+            <!-- Desktop Menu -->
+            <div class="nav-menu">
+                <a href="#" class="nav-link" data-section="dashboard">📊 Dashboard</a>
+                <a href="#" class="nav-link" data-section="companies">🏢 Aziende</a>
+                <a href="#" class="nav-link" data-section="candidates">👤 Candidati</a>
+                <a href="#" class="nav-link" data-section="matching">🤝 Matching</a>
+            </div>
+            
+            <!-- Mobile Menu Toggle -->
+            <button class="mobile-menu-toggle" aria-label="Menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+        
+        <!-- Mobile Menu -->
+        <div class="mobile-menu">
+            <a href="#" class="nav-link" data-section="dashboard">📊 Dashboard</a>
+            <a href="#" class="nav-link" data-section="companies">🏢 Aziende</a>
+            <a href="#" class="nav-link" data-section="candidates">👤 Candidati</a>
+            <a href="#" class="nav-link" data-section="matching">🤝 Matching</a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Dashboard Section -->
+        <section id="dashboard" class="section active">
+            <div class="container">
+                <h2>Dashboard Centrale</h2>
+                
+                <!-- Stats Cards -->
+                <div class="stats-grid">
+                    <div class="card stat-card">
+                        <div class="stat-icon">🏢</div>
+                        <div class="stat-info">
+                            <h3 id="companies-count">0</h3>
+                            <p>Aziende Registrate</p>
+                        </div>
+                    </div>
+                    <div class="card stat-card">
+                        <div class="stat-icon">👤</div>
+                        <div class="stat-info">
+                            <h3 id="candidates-count">0</h3>
+                            <p>Candidati Registrati</p>
+                        </div>
+                    </div>
+                    <div class="card stat-card">
+                        <div class="stat-icon">🤝</div>
+                        <div class="stat-info">
+                            <h3 id="matches-count">0</h3>
+                            <p>Match Trovati</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="action-buttons">
+                    <button class="btn btn--primary btn--lg" onclick="showAddCompanyForm()">
+                        🏢 Aggiungi Azienda
+                    </button>
+                    <button class="btn btn--primary btn--lg" onclick="showAddCandidateForm()">
+                        👤 Aggiungi Candidato
+                    </button>
+                    <button class="btn btn--secondary btn--lg" onclick="showMatching()">
+                        🤝 Matching Automatico
+                    </button>
+                </div>
+
+                <!-- Search and Filters -->
+                <div class="card search-filters">
+                    <h3>🔍 Ricerca Globale</h3>
+                    <div class="search-form">
+                        <input type="text" id="global-search" class="form-control" placeholder="Cerca per parole chiave...">
+                        <select id="type-filter" class="form-control">
+                            <option value="">Tutti i tipi</option>
+                            <option value="company">Solo Aziende</option>
+                            <option value="candidate">Solo Candidati</option>
+                        </select>
+                        <select id="ateco-filter" class="form-control">
+                            <option value="">Tutte le categorie ATECO</option>
+                        </select>
+                        <button class="btn btn--secondary" onclick="performSearch()">Cerca</button>
+                    </div>
+                </div>
+
+                <!-- Search Results -->
+                <div id="search-results" class="search-results"></div>
+            </div>
+        </section>
+
+        <!-- Companies Section -->
+        <section id="companies" class="section">
+            <div class="container">
+                <div class="section-header">
+                    <h2>🏢 Gestione Aziende</h2>
+                    <button class="btn btn--primary" onclick="showAddCompanyForm()">Nuova Azienda</button>
+                </div>
+                
+                <div id="companies-list" class="entities-grid"></div>
+            </div>
+        </section>
+
+        <!-- Candidates Section -->  
+        <section id="candidates" class="section">
+            <div class="container">
+                <div class="section-header">
+                    <h2>👤 Gestione Candidati</h2>
+                    <button class="btn btn--primary" onclick="showAddCandidateForm()">Nuovo Candidato</button>
+                </div>
+                
+                <div id="candidates-list" class="entities-grid"></div>
+            </div>
+        </section>
+
+        <!-- Matching Section -->
+        <section id="matching" class="section">
+            <div class="container">
+                <h2>🤝 Matching Automatico</h2>
+                <div class="card">
+                    <div class="card__body">
+                        <p>Il sistema di matching automatico calcola la compatibilità tra aziende e candidati basandosi sulle competenze comuni.</p>
+                        <button class="btn btn--primary btn--lg btn--full-width" onclick="calculateMatching()">
+                            Calcola Matching
+                        </button>
+                    </div>
+                </div>
+                
+                <div id="matching-results" class="matching-results"></div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modals -->
+    <!-- Company Modal -->
+    <div id="company-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="company-modal-title">Aggiungi Azienda</h3>
+                <button class="close-modal" onclick="closeModal('company-modal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="company-form">
+                    <input type="hidden" id="company-id">
+                    <div class="form-group">
+                        <label class="form-label">Nome Azienda *</label>
+                        <input type="text" id="company-name" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Descrizione</label>
+                        <textarea id="company-description" class="form-control" rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Competenze Ricercate (separate da virgole)</label>
+                        <input type="text" id="company-skills" class="form-control" placeholder="JavaScript, React, Node.js">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Categoria ATECO</label>
+                        <select id="company-ateco" class="form-control">
+                            <option value="">Seleziona categoria</option>
+                        </select>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn--primary">Salva</button>
+                        <button type="button" class="btn btn--secondary" onclick="closeModal('company-modal')">Annulla</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Candidate Modal -->
+    <div id="candidate-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="candidate-modal-title">Aggiungi Candidato</h3>
+                <button class="close-modal" onclick="closeModal('candidate-modal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="candidate-form">
+                    <input type="hidden" id="candidate-id">
+                    <div class="form-group">
+                        <label class="form-label">Nome Completo *</label>
+                        <input type="text" id="candidate-name" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Email</label>
+                        <input type="email" id="candidate-email" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Telefono</label>
+                        <input type="tel" id="candidate-phone" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Competenze (separate da virgole)</label>
+                        <input type="text" id="candidate-skills" class="form-control" placeholder="JavaScript, React, PHP">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Esperienze</label>
+                        <textarea id="candidate-experience" class="form-control" rows="3" placeholder="Descrivi le tue esperienze lavorative"></textarea>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn--primary">Salva</button>
+                        <button type="button" class="btn btn--secondary" onclick="closeModal('candidate-modal')">Annulla</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="loading-overlay">
+        <div class="spinner"></div>
+        <p>Caricamento...</p>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 Alessandro Carenza. Tutti i diritti riservati.</p>
+        </div>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+</html>

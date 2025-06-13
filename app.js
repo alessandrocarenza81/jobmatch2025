@@ -19,10 +19,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
             isSupabaseConnected = true;
             console.log('✅ Connessione a Supabase riuscita');
-
+            
             // Mostra statistiche dashboard
             updateDashboardStats();
-
+            
             // Carica dati da Supabase
             await loadCompanies();
             await loadCandidates();
@@ -98,18 +98,18 @@ function navigateToPage(pageId) {
     document.querySelectorAll('.page-section').forEach(section => {
         section.classList.remove('active');
     });
-
+    
     // Disattiva tutti i link di navigazione
     document.querySelectorAll('.nav-link').forEach(link => {
         link.classList.remove('active');
     });
-
+    
     // Attiva la sezione selezionata
     const selectedPage = document.getElementById(pageId);
     if (selectedPage) {
         selectedPage.classList.add('active');
     }
-
+    
     // Attiva il link di navigazione corrispondente
     const activeLink = document.querySelector(`.nav-link[data-page="${pageId}"]`);
     if (activeLink) {
@@ -130,14 +130,14 @@ function navigateToPage(pageId) {
 function showCompanyModal(mode, companyId) {
     document.getElementById('company-form').reset();
     document.getElementById('company-form').dataset.mode = mode;
-
+    
     if (mode === 'add') {
         document.getElementById('company-modal-title').textContent = 'Aggiungi Azienda';
         document.getElementById('company-form').dataset.id = '';
     } else if (mode === 'edit' && companyId) {
         document.getElementById('company-modal-title').textContent = 'Modifica Azienda';
         document.getElementById('company-form').dataset.id = companyId;
-
+        
         // Carica i dati dell'azienda nel form
         const company = companies.find(c => c.id.toString() === companyId.toString());
         if (company) {
@@ -145,10 +145,9 @@ function showCompanyModal(mode, companyId) {
             document.getElementById('company-category').value = company.categoria || '';
             document.getElementById('company-description').value = company.descrizione || '';
             document.getElementById('company-skills').value = company.competenze || '';
-            document.getElementById('company-location').value = company.luogo_residenza || '';
         }
     }
-
+    
     // Mostra il modal
     const companyModal = new bootstrap.Modal(document.getElementById('company-modal'));
     companyModal.show();
@@ -158,14 +157,14 @@ function showCompanyModal(mode, companyId) {
 function showCandidateModal(mode, candidateId) {
     document.getElementById('candidate-form').reset();
     document.getElementById('candidate-form').dataset.mode = mode;
-
+    
     if (mode === 'add') {
         document.getElementById('candidate-modal-title').textContent = 'Aggiungi Candidato';
         document.getElementById('candidate-form').dataset.id = '';
     } else if (mode === 'edit' && candidateId) {
         document.getElementById('candidate-modal-title').textContent = 'Modifica Candidato';
         document.getElementById('candidate-form').dataset.id = candidateId;
-
+        
         // Carica i dati del candidato nel form
         const candidate = candidates.find(c => c.id.toString() === candidateId.toString());
         if (candidate) {
@@ -174,10 +173,9 @@ function showCandidateModal(mode, candidateId) {
             document.getElementById('candidate-phone').value = candidate.telefono || '';
             document.getElementById('candidate-skills').value = candidate.competenze || '';
             document.getElementById('candidate-experience').value = candidate.esperienze || '';
-            document.getElementById('candidate-location').value = candidate.luogo_residenza || '';
         }
     }
-
+    
     // Mostra il modal
     const candidateModal = new bootstrap.Modal(document.getElementById('candidate-modal'));
     candidateModal.show();
@@ -193,9 +191,9 @@ async function loadCompanies() {
         try {
             const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
             const { data, error } = await supabase.from('companies').select('*');
-
+            
             if (error) throw error;
-
+            
             companies = data || [];
             displayCompanies();
         } catch (error) {
@@ -210,7 +208,7 @@ async function loadCompanies() {
 function displayCompanies() {
     const companiesContainer = document.getElementById('companies-list');
     if (!companiesContainer) return;
-
+    
     companiesContainer.innerHTML = '';
 
     if (companies.length === 0) {
@@ -228,7 +226,6 @@ function displayCompanies() {
                     <h6 class="card-subtitle mb-2 text-muted">${company.categoria || ''}</h6>
                     <p class="card-text description">${company.descrizione || ''}</p>
                     <p class="card-text"><strong>Competenze:</strong> ${company.competenze || ''}</p>
-                    <p class="card-text"><strong>Luogo di residenza:</strong> ${company.luogo_residenza || 'Non specificato'}</p>
                 </div>
                 <div class="card-footer bg-transparent">
                     <button class="btn btn-sm btn-primary edit-company" data-id="${company.id}">Modifica</button>
@@ -255,25 +252,24 @@ function displayCompanies() {
 // Gestisci l'invio del form azienda (aggiungi o modifica)
 async function handleCompanySubmit(e) {
     e.preventDefault();
-
+    
     const form = e.target;
     const mode = form.dataset.mode;
     const companyId = form.dataset.id;
-
+    
     const company = {
         nome: document.getElementById('company-name').value,
         categoria: document.getElementById('company-category').value,
         descrizione: document.getElementById('company-description').value,
-        competenze: document.getElementById('company-skills').value,
-        luogo_residenza: document.getElementById('company-location').value
+        competenze: document.getElementById('company-skills').value
     };
-
+    
     if (mode === 'add') {
         await addCompany(company);
     } else if (mode === 'edit') {
         await updateCompany(companyId, company);
     }
-
+    
     // Chiudi il modal
     const companyModal = bootstrap.Modal.getInstance(document.getElementById('company-modal'));
     if (companyModal) {
@@ -287,9 +283,9 @@ async function addCompany(company) {
         try {
             const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
             const { data, error } = await supabase.from('companies').insert([company]);
-
+            
             if (error) throw error;
-
+            
             await loadCompanies();
         } catch (error) {
             console.error('Errore nell\'aggiunta dell\'azienda:', error);
@@ -312,9 +308,9 @@ async function updateCompany(id, updatedCompany) {
                 .from('companies')
                 .update(updatedCompany)
                 .eq('id', id);
-
+            
             if (error) throw error;
-
+            
             await loadCompanies();
         } catch (error) {
             console.error('Errore nell\'aggiornamento dell\'azienda:', error);
@@ -341,9 +337,9 @@ async function deleteCompany(id) {
                 .from('companies')
                 .delete()
                 .eq('id', id);
-
+            
             if (error) throw error;
-
+            
             await loadCompanies();
         } catch (error) {
             console.error('Errore nell\'eliminazione dell\'azienda:', error);
@@ -366,9 +362,9 @@ async function loadCandidates() {
         try {
             const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
             const { data, error } = await supabase.from('candidates').select('*');
-
+            
             if (error) throw error;
-
+            
             candidates = data || [];
             displayCandidates();
         } catch (error) {
@@ -383,7 +379,7 @@ async function loadCandidates() {
 function displayCandidates() {
     const candidatesContainer = document.getElementById('candidates-list');
     if (!candidatesContainer) return;
-
+    
     candidatesContainer.innerHTML = '';
 
     if (candidates.length === 0) {
@@ -402,7 +398,6 @@ function displayCandidates() {
                     <p class="card-text"><i class="bi bi-telephone"></i> ${candidate.telefono || ''}</p>
                     <p class="card-text"><strong>Competenze:</strong> ${candidate.competenze || ''}</p>
                     <p class="card-text"><strong>Esperienze:</strong> ${candidate.esperienze || ''}</p>
-                    <p class="card-text"><strong>Luogo di residenza:</strong> ${candidate.luogo_residenza || 'Non specificato'}</p>
                 </div>
                 <div class="card-footer bg-transparent">
                     <button class="btn btn-sm btn-primary edit-candidate" data-id="${candidate.id}">Modifica</button>
@@ -429,26 +424,25 @@ function displayCandidates() {
 // Gestisci l'invio del form candidato (aggiungi o modifica)
 async function handleCandidateSubmit(e) {
     e.preventDefault();
-
+    
     const form = e.target;
     const mode = form.dataset.mode;
     const candidateId = form.dataset.id;
-
+    
     const candidate = {
         nome: document.getElementById('candidate-name').value,
         email: document.getElementById('candidate-email').value,
         telefono: document.getElementById('candidate-phone').value,
         competenze: document.getElementById('candidate-skills').value,
-        esperienze: document.getElementById('candidate-experience').value,
-        luogo_residenza: document.getElementById('candidate-location').value
+        esperienze: document.getElementById('candidate-experience').value
     };
-
+    
     if (mode === 'add') {
         await addCandidate(candidate);
     } else if (mode === 'edit') {
         await updateCandidate(candidateId, candidate);
     }
-
+    
     // Chiudi il modal
     const candidateModal = bootstrap.Modal.getInstance(document.getElementById('candidate-modal'));
     if (candidateModal) {
@@ -462,9 +456,9 @@ async function addCandidate(candidate) {
         try {
             const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
             const { data, error } = await supabase.from('candidates').insert([candidate]);
-
+            
             if (error) throw error;
-
+            
             await loadCandidates();
         } catch (error) {
             console.error('Errore nell\'aggiunta del candidato:', error);
@@ -487,9 +481,9 @@ async function updateCandidate(id, updatedCandidate) {
                 .from('candidates')
                 .update(updatedCandidate)
                 .eq('id', id);
-
+            
             if (error) throw error;
-
+            
             await loadCandidates();
         } catch (error) {
             console.error('Errore nell\'aggiornamento del candidato:', error);
@@ -516,9 +510,9 @@ async function deleteCandidate(id) {
                 .from('candidates')
                 .delete()
                 .eq('id', id);
-
+            
             if (error) throw error;
-
+            
             await loadCandidates();
         } catch (error) {
             console.error('Errore nell\'eliminazione del candidato:', error);
@@ -539,7 +533,7 @@ async function deleteCandidate(id) {
 function updateDashboardStats() {
     const totalCompaniesElement = document.getElementById('total-companies');
     const totalCandidatesElement = document.getElementById('total-candidates');
-
+    
     if (totalCompaniesElement) {
         totalCompaniesElement.textContent = companies.length;
     }
@@ -551,25 +545,23 @@ function updateDashboardStats() {
 // Gestisci funzionalità di ricerca
 function handleSearch(e) {
     const searchTerm = e.target.value.toLowerCase();
-
+    
     // Filtra aziende
     const filteredCompanies = companies.filter(company => 
         company.nome?.toLowerCase().includes(searchTerm) || 
         company.categoria?.toLowerCase().includes(searchTerm) || 
         company.descrizione?.toLowerCase().includes(searchTerm) || 
-        company.competenze?.toLowerCase().includes(searchTerm) ||
-        company.luogo_residenza?.toLowerCase().includes(searchTerm)
+        company.competenze?.toLowerCase().includes(searchTerm)
     );
-
+    
     // Filtra candidati
     const filteredCandidates = candidates.filter(candidate => 
         candidate.nome?.toLowerCase().includes(searchTerm) || 
         candidate.email?.toLowerCase().includes(searchTerm) || 
         candidate.competenze?.toLowerCase().includes(searchTerm) || 
-        candidate.esperienze?.toLowerCase().includes(searchTerm) ||
-        candidate.luogo_residenza?.toLowerCase().includes(searchTerm)
+        candidate.esperienze?.toLowerCase().includes(searchTerm)
     );
-
+    
     // Mostra risultati filtrati
     displayFilteredResults(filteredCompanies, filteredCandidates);
 };
@@ -594,7 +586,6 @@ function displayFilteredResults(filteredCompanies, filteredCandidates) {
                             <h6 class="card-subtitle mb-2 text-muted">${company.categoria || ''}</h6>
                             <p class="card-text description">${company.descrizione || ''}</p>
                             <p class="card-text"><strong>Competenze:</strong> ${company.competenze || ''}</p>
-                            <p class="card-text"><strong>Luogo di residenza:</strong> ${company.luogo_residenza || 'Non specificato'}</p>
                         </div>
                         <div class="card-footer bg-transparent">
                             <button class="btn btn-sm btn-primary edit-company" data-id="${company.id}">Modifica</button>
@@ -635,7 +626,6 @@ function displayFilteredResults(filteredCompanies, filteredCandidates) {
                             <p class="card-text"><i class="bi bi-telephone"></i> ${candidate.telefono || ''}</p>
                             <p class="card-text"><strong>Competenze:</strong> ${candidate.competenze || ''}</p>
                             <p class="card-text"><strong>Esperienze:</strong> ${candidate.esperienze || ''}</p>
-                            <p class="card-text"><strong>Luogo di residenza:</strong> ${candidate.luogo_residenza || 'Non specificato'}</p>
                         </div>
                         <div class="card-footer bg-transparent">
                             <button class="btn btn-sm btn-primary edit-candidate" data-id="${candidate.id}">Modifica</button>
@@ -662,14 +652,14 @@ function displayFilteredResults(filteredCompanies, filteredCandidates) {
 function performMatching() {
     const matchingResults = document.getElementById('matching-results');
     if (!matchingResults) return;
-
+    
     matchingResults.innerHTML = '';
-
+    
     if (companies.length === 0 || candidates.length === 0) {
         matchingResults.innerHTML = '<div class="alert alert-warning">Aggiungi sia aziende che candidati per eseguire il matching.</div>';
         return;
     }
-
+    
     // Crea una tabella dei risultati
     const resultTable = document.createElement('table');
     resultTable.className = 'table table-bordered table-hover';
@@ -685,12 +675,12 @@ function performMatching() {
         </tbody>
     `;
     matchingResults.appendChild(resultTable);
-
+    
     const tableBody = document.getElementById('matching-table-body');
-
+    
     // Calcola punteggi di matching
     const matches = [];
-
+    
     candidates.forEach(candidate => {
         companies.forEach(company => {
             const score = calculateMatchScore(candidate, company);
@@ -699,10 +689,10 @@ function performMatching() {
             }
         });
     });
-
+    
     // Ordina i match per punteggio (decrescente)
     matches.sort((a, b) => b.score - a.score);
-
+    
     // Mostra i match
     if (matches.length === 0) {
         tableBody.innerHTML = '<tr><td colspan="3" class="text-center">Nessun match trovato</td></tr>';
@@ -722,17 +712,17 @@ function performMatching() {
 // Calcola punteggio di match tra un candidato e un'azienda
 function calculateMatchScore(candidate, company) {
     if (!candidate.competenze || !company.competenze) return 0;
-
+    
     // Dividi le competenze in array
     const candidateSkills = candidate.competenze.toLowerCase().split(',').map(skill => skill.trim());
     const companySkills = company.competenze.toLowerCase().split(',').map(skill => skill.trim());
-
+    
     // Trova competenze comuni
     const commonSkills = candidateSkills.filter(skill => companySkills.includes(skill));
-
+    
     // Calcola punteggio
     const totalUniqueSkills = new Set([...candidateSkills, ...companySkills]).size;
     const score = Math.round((commonSkills.length / totalUniqueSkills) * 100);
-
+    
     return score;
 };

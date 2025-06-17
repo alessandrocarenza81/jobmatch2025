@@ -142,7 +142,6 @@ function showCompanyModal(mode, companyId) {
         const company = companies.find(c => c.id.toString() === companyId.toString());
         if (company) {
             document.getElementById('company-name').value = company.nome || '';
-			document.getElementById('company-location').value = company.luogo_residenza || '';
             document.getElementById('company-category').value = company.categoria || '';
             document.getElementById('company-description').value = company.descrizione || '';
             document.getElementById('company-skills').value = company.competenze || '';
@@ -172,7 +171,6 @@ function showCandidateModal(mode, candidateId) {
             document.getElementById('candidate-name').value = candidate.nome || '';
             document.getElementById('candidate-email').value = candidate.email || '';
             document.getElementById('candidate-phone').value = candidate.telefono || '';
-			document.getElementById('candidate-location').value = candidate.luogo_residenza || '';
             document.getElementById('candidate-skills').value = candidate.competenze || '';
             document.getElementById('candidate-experience').value = candidate.esperienze || '';
         }
@@ -228,7 +226,6 @@ function displayCompanies() {
                     <h6 class="card-subtitle mb-2 text-muted">${company.categoria || ''}</h6>
                     <p class="card-text description">${company.descrizione || ''}</p>
                     <p class="card-text"><strong>Competenze:</strong> ${company.competenze || ''}</p>
-					<p class="card-text"><strong>Luogo di residenza:</strong> ${company.luogo_residenza || ''}</p>
                 </div>
                 <div class="card-footer bg-transparent">
                     <button class="btn btn-sm btn-primary edit-company" data-id="${company.id}">Modifica</button>
@@ -262,7 +259,6 @@ async function handleCompanySubmit(e) {
     
     const company = {
         nome: document.getElementById('company-name').value,
-		luogo_residenza = document.getElementById('company-location').value,
         categoria: document.getElementById('company-category').value,
         descrizione: document.getElementById('company-description').value,
         competenze: document.getElementById('company-skills').value
@@ -401,7 +397,6 @@ function displayCandidates() {
                     <p class="card-text"><i class="bi bi-envelope"></i> ${candidate.email || ''}</p>
                     <p class="card-text"><i class="bi bi-telephone"></i> ${candidate.telefono || ''}</p>
                     <p class="card-text"><strong>Competenze:</strong> ${candidate.competenze || ''}</p>
-				    <p class="card-text"><strong>Luogo di residenza:</strong> ${candidate.luogo_residenza || ''}</p>	
                     <p class="card-text"><strong>Esperienze:</strong> ${candidate.esperienze || ''}</p>
                 </div>
                 <div class="card-footer bg-transparent">
@@ -438,7 +433,6 @@ async function handleCandidateSubmit(e) {
         nome: document.getElementById('candidate-name').value,
         email: document.getElementById('candidate-email').value,
         telefono: document.getElementById('candidate-phone').value,
-		luogo_residenza = document.getElementById('candidate-location').value,
         competenze: document.getElementById('candidate-skills').value,
         esperienze: document.getElementById('candidate-experience').value
     };
@@ -555,7 +549,6 @@ function handleSearch(e) {
     // Filtra aziende
     const filteredCompanies = companies.filter(company => 
         company.nome?.toLowerCase().includes(searchTerm) || 
-		company.luogo_residenza?.toLowerCase().includes(searchTerm) ||
         company.categoria?.toLowerCase().includes(searchTerm) || 
         company.descrizione?.toLowerCase().includes(searchTerm) || 
         company.competenze?.toLowerCase().includes(searchTerm)
@@ -565,7 +558,6 @@ function handleSearch(e) {
     const filteredCandidates = candidates.filter(candidate => 
         candidate.nome?.toLowerCase().includes(searchTerm) || 
         candidate.email?.toLowerCase().includes(searchTerm) || 
-		candidate.luogo_residenza?.toLowerCase().includes(searchTerm) || 
         candidate.competenze?.toLowerCase().includes(searchTerm) || 
         candidate.esperienze?.toLowerCase().includes(searchTerm)
     );
@@ -593,7 +585,6 @@ function displayFilteredResults(filteredCompanies, filteredCandidates) {
                             <h5 class="card-title">${company.nome || ''}</h5>
                             <h6 class="card-subtitle mb-2 text-muted">${company.categoria || ''}</h6>
                             <p class="card-text description">${company.descrizione || ''}</p>
-							<p class="card-text description">${company.luogo_residenza || ''}</p>
                             <p class="card-text"><strong>Competenze:</strong> ${company.competenze || ''}</p>
                         </div>
                         <div class="card-footer bg-transparent">
@@ -633,7 +624,6 @@ function displayFilteredResults(filteredCompanies, filteredCandidates) {
                             <h5 class="card-title">${candidate.nome || ''}</h5>
                             <p class="card-text"><i class="bi bi-envelope"></i> ${candidate.email || ''}</p>
                             <p class="card-text"><i class="bi bi-telephone"></i> ${candidate.telefono || ''}</p>
-							<p class="card-text"><strong>Luogo di residenza:</strong> ${candidate.luogo_residenza || ''}</p>
                             <p class="card-text"><strong>Competenze:</strong> ${candidate.competenze || ''}</p>
                             <p class="card-text"><strong>Esperienze:</strong> ${candidate.esperienze || ''}</p>
                         </div>

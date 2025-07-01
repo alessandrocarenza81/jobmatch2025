@@ -3,11 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JobMatch 2025 - Piattaforma Incrocio Domanda-Offerta Lavoro</title>
-    
-    <!-- Bootstrap CSS -->
+    <title>JobMatch 2025</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
     <style>
         .page-section {
             display: none;
@@ -15,218 +13,259 @@
         .page-section.active {
             display: block;
         }
-        .dashboard-card {
+        .dashboard-stat {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border-radius: 15px;
-            padding: 25px;
-            margin-bottom: 20px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
-        .action-buttons {
-            margin: 20px 0;
+        .company-card, .candidate-card {
+            border-left: 4px solid #667eea;
+            transition: transform 0.2s;
         }
-        .navbar-brand {
-            font-weight: bold;
-            font-size: 1.5rem;
-        }
-        .footer {
-            margin-top: 50px;
-            padding: 20px 0;
-            text-align: center;
-            color: #666;
-            border-top: 1px solid #eee;
-        }
-        .card {
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            margin-bottom: 15px;
-        }
-        .btn-group-custom {
-            gap: 5px;
-        }
-        .search-container {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 20px;
+        .company-card:hover, .candidate-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
         .match-result {
-            background: #e7f3ff;
-            border: 1px solid #b3d7ff;
-            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
             padding: 15px;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        }
+        .compatibility-badge {
+            font-size: 1.1em;
+            font-weight: bold;
+        }
+        .search-results-section {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            border: 1px solid #dee2e6;
+        }
+        .search-results-header {
+            color: #495057;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
         }
     </style>
 </head>
 <body>
-    <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
-        <div class="container">
-            <a class="navbar-brand" href="#" onclick="navigateToPage('dashboard')">JobMatch 2025</a>
-            <div class="navbar-nav ms-auto">
-                <button class="btn btn-outline-primary me-2" onclick="navigateToPage('dashboard')">📊 Dashboard</button>
-                <button class="btn btn-outline-primary me-2" onclick="navigateToPage('companies')">🏢 Aziende</button>
-                <button class="btn btn-outline-primary me-2" onclick="navigateToPage('candidates')">👤 Candidati</button>
-                <button class="btn btn-outline-primary" onclick="navigateToPage('matching')">🤝 Matching</button>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
+        <div class="container-fluid">
+            <span class="navbar-brand mb-0 h1">
+                <i class="bi bi-briefcase-fill me-2"></i>JobMatch 2025
+            </span>
+            <div class="navbar-nav">
+                <button class="btn btn-outline-light me-2" onclick="navigateToPage('dashboard')">
+                    <i class="bi bi-house-fill"></i> 📊 Dashboard
+                </button>
+                <button class="btn btn-outline-light me-2" onclick="navigateToPage('companies')">
+                    <i class="bi bi-building"></i> 🏢 Aziende
+                </button>
+                <button class="btn btn-outline-light me-2" onclick="navigateToPage('candidates')">
+                    <i class="bi bi-person-fill"></i> 👤 Candidati
+                </button>
+                <button class="btn btn-outline-light" onclick="navigateToPage('matching')">
+                    <i class="bi bi-heart-fill"></i> 🤝 Matching
+                </button>
             </div>
         </div>
     </nav>
 
-    <div class="container mt-4">
+    <div class="container my-4">
         <!-- Dashboard Section -->
         <div id="dashboard" class="page-section active">
-            <div class="row">
-                <div class="col-md-12">
-                    <h2 class="mb-4">📊 Dashboard</h2>
+            <div class="row mb-4">
+                <div class="col-12">
+                    <h2 class="text-center mb-4">
+                        <i class="bi bi-graph-up-arrow"></i> 📊 Dashboard JobMatch
+                    </h2>
                 </div>
             </div>
-            
+
             <!-- Statistics Cards -->
-            <div class="row">
-                <div class="col-md-6">
-                    <div class="dashboard-card text-center">
-                        <h3>🏢 Aziende Registrate</h3>
-                        <h1 id="total-companies" class="display-4">0</h1>
+            <div class="row mb-4">
+                <div class="col-md-6 mb-3">
+                    <div class="card dashboard-stat h-100">
+                        <div class="card-body text-center">
+                            <i class="bi bi-building display-4 mb-3"></i>
+                            <h3 class="card-title">🏢 Aziende Registrate</h3>
+                            <h2 class="display-4" id="total-companies">0</h2>
+                        </div>
                     </div>
                 </div>
-                <div class="col-md-6">
-                    <div class="dashboard-card text-center">
-                        <h3>👤 Candidati Registrati</h3>
-                        <h1 id="total-candidates" class="display-4">0</h1>
+                <div class="col-md-6 mb-3">
+                    <div class="card dashboard-stat h-100">
+                        <div class="card-body text-center">
+                            <i class="bi bi-people display-4 mb-3"></i>
+                            <h3 class="card-title">👤 Candidati Registrati</h3>
+                            <h2 class="display-4" id="total-candidates">0</h2>
+                        </div>
                     </div>
                 </div>
             </div>
 
             <!-- Action Buttons -->
-            <div class="action-buttons text-center">
-                <button class="btn btn-success btn-lg me-3" onclick="showCompanyForm()">
-                    <i class="bi bi-plus-circle"></i> Aggiungi Azienda
-                </button>
-                <button class="btn btn-success btn-lg" onclick="showCandidateForm()">
-                    <i class="bi bi-plus-circle"></i> Aggiungi Candidato
-                </button>
-            </div>
-
-            <!-- Search Section -->
-            <div class="search-container">
-                <h4>🔍 Ricerca Globale</h4>
-                <div class="row">
-                    <div class="col-md-8">
-                        <input type="text" id="global-search" class="form-control" placeholder="Cerca per qualsiasi parola chiave...">
-                    </div>
-                    <div class="col-md-4">
-                        <button class="btn btn-primary w-100" onclick="performGlobalSearch()">Cerca</button>
-                    </div>
-                </div>
-                <div class="row mt-3">
-                    <div class="col-md-4">
-                        <select id="category-filter" class="form-select">
-                            <option value="">Tutte le categorie</option>
-                            <option value="A">A - Agricoltura, silvicoltura e pesca</option>
-                            <option value="B">B - Estrazione di minerali da cave e miniere</option>
-                            <option value="C">C - Attività manifatturiere</option>
-                            <option value="D">D - Fornitura di energia elettrica, gas, vapore</option>
-                            <option value="E">E - Fornitura di acqua; reti fognarie</option>
-                            <option value="F">F - Costruzioni</option>
-                            <option value="G">G - Commercio all'ingrosso e al dettaglio</option>
-                            <option value="H">H - Trasporto e magazzinaggio</option>
-                            <option value="I">I - Attività dei servizi alloggio e ristorazione</option>
-                            <option value="J">J - Servizi di informazione e comunicazione</option>
-                            <option value="K">K - Attività finanziarie e assicurative</option>
-                            <option value="L">L - Attività immobiliari</option>
-                            <option value="M">M - Attività professionali, scientifiche e tecniche</option>
-                            <option value="N">N - Noleggio, agenzie di viaggio, servizi di supporto</option>
-                            <option value="O">O - Amministrazione pubblica e difesa</option>
-                            <option value="P">P - Istruzione</option>
-                            <option value="Q">Q - Sanità e assistenza sociale</option>
-                            <option value="R">R - Attività artistiche, sportive, di intrattenimento</option>
-                            <option value="S">S - Altre attività di servizi</option>
-                            <option value="T">T - Attività di famiglie e convivenze</option>
-                            <option value="U">U - Organizzazioni ed organismi extraterritoriali</option>
-                        </select>
-                    </div>
-                    <div class="col-md-4">
-                        <input type="text" id="skills-filter" class="form-control" placeholder="Filtra per competenze...">
-                    </div>
-                    <div class="col-md-4">
-                        <select id="type-filter" class="form-select">
-                            <option value="">Tutti</option>
-                            <option value="companies">Solo Aziende</option>
-                            <option value="candidates">Solo Candidati</option>
-                        </select>
-                    </div>
+            <div class="row mb-4">
+                <div class="col-12 text-center">
+                    <button class="btn btn-success btn-lg me-3" onclick="showCompanyForm()">
+                        <i class="bi bi-plus-circle"></i> Aggiungi Azienda
+                    </button>
+                    <button class="btn btn-success btn-lg me-3" onclick="showCandidateForm()">
+                        <i class="bi bi-person-plus"></i> Aggiungi Candidato
+                    </button>
+                    <button class="btn btn-warning btn-lg" onclick="runMatching()">
+                        <i class="bi bi-heart-fill"></i> 🤝 Esegui Matching Automatico
+                    </button>
                 </div>
             </div>
 
-            <!-- Matching Button -->
-            <div class="text-center mt-4">
-                <button class="btn btn-warning btn-lg" onclick="navigateToPage('matching')">
-                    🤝 Esegui Matching Automatico
-                </button>
+            <!-- Global Search Section -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0">
+                                <i class="bi bi-search"></i> 🔍 Ricerca Globale
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <input type="text" class="form-control" id="global-search" 
+                                           placeholder="Cerca per nome, competenze, categoria..." 
+                                           onkeyup="performGlobalSearch()">
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <select class="form-select" id="category-filter" onchange="performGlobalSearch()">
+                                        <option value="">Tutte le categorie</option>
+                                        <option value="A">A - Agricoltura, silvicoltura e pesca</option>
+                                        <option value="B">B - Estrazione di minerali da cave e miniere</option>
+                                        <option value="C">C - Attività manifatturiere</option>
+                                        <option value="D">D - Fornitura di energia elettrica, gas, vapore</option>
+                                        <option value="E">E - Fornitura di acqua; reti fognarie</option>
+                                        <option value="F">F - Costruzioni</option>
+                                        <option value="G">G - Commercio all'ingrosso e al dettaglio</option>
+                                        <option value="H">H - Trasporto e magazzinaggio</option>
+                                        <option value="I">I - Attività dei servizi alloggio e ristorazione</option>
+                                        <option value="J">J - Servizi di informazione e comunicazione</option>
+                                        <option value="K">K - Attività finanziarie e assicurative</option>
+                                        <option value="L">L - Attività immobiliari</option>
+                                        <option value="M">M - Attività professionali, scientifiche e tecniche</option>
+                                        <option value="N">N - Noleggio, agenzie di viaggio, servizi di supporto</option>
+                                        <option value="O">O - Amministrazione pubblica e difesa</option>
+                                        <option value="P">P - Istruzione</option>
+                                        <option value="Q">Q - Sanità e assistenza sociale</option>
+                                        <option value="R">R - Attività artistiche, sportive, di intrattenimento</option>
+                                        <option value="S">S - Altre attività di servizi</option>
+                                        <option value="T">T - Attività di famiglie e convivenze</option>
+                                        <option value="U">U - Organizzazioni ed organismi extraterritoriali</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <select class="form-select" id="type-filter" onchange="performGlobalSearch()">
+                                        <option value="all">Tutti</option>
+                                        <option value="companies">Solo Aziende</option>
+                                        <option value="candidates">Solo Candidati</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-2 mb-3">
+                                    <button class="btn btn-primary w-100" onclick="performGlobalSearch()">
+                                        <i class="bi bi-search"></i> Cerca
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Search Results Section (inizialmente nascosta) -->
+            <div id="search-results-container" class="search-results-section" style="display: none;">
+                <h4 class="search-results-header">
+                    <i class="bi bi-search"></i> Risultati della Ricerca
+                </h4>
+                <div id="search-results-content">
+                    <!-- I risultati verranno inseriti qui dinamicamente -->
+                </div>
             </div>
         </div>
 
         <!-- Companies Section -->
         <div id="companies" class="page-section">
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2>🏢 Elenco Aziende</h2>
+                <h2><i class="bi bi-building"></i> 🏢 Elenco Aziende</h2>
                 <button class="btn btn-success" onclick="showCompanyForm()">
                     <i class="bi bi-plus-circle"></i> Aggiungi Azienda
                 </button>
             </div>
-            <div id="companies-list"></div>
+            <div id="companies-list">
+                <!-- Le aziende verranno caricate qui -->
+            </div>
         </div>
 
         <!-- Candidates Section -->
         <div id="candidates" class="page-section">
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2>👤 Elenco Candidati</h2>
+                <h2><i class="bi bi-people"></i> 👤 Elenco Candidati</h2>
                 <button class="btn btn-success" onclick="showCandidateForm()">
-                    <i class="bi bi-plus-circle"></i> Aggiungi Candidato
+                    <i class="bi bi-person-plus"></i> Aggiungi Candidato
                 </button>
             </div>
-            <div id="candidates-list"></div>
+            <div id="candidates-list">
+                <!-- I candidati verranno caricati qui -->
+            </div>
         </div>
 
         <!-- Matching Section -->
         <div id="matching" class="page-section">
-            <h2 class="mb-4">🤝 Matching Automatico</h2>
-            <div class="text-center mb-4">
-                <button class="btn btn-primary btn-lg" onclick="runMatching()">
-                    <i class="bi bi-search-heart"></i> Esegui Matching
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="bi bi-heart-fill"></i> 🤝 Matching Automatico</h2>
+                <button class="btn btn-warning" onclick="runMatching()">
+                    <i class="bi bi-gear-fill"></i> Esegui Matching
                 </button>
             </div>
-            <div id="matching-results"></div>
+            <div id="matching-results">
+                <!-- I risultati del matching verranno caricati qui -->
+            </div>
         </div>
     </div>
 
     <!-- Company Modal -->
-    <div class="modal fade" id="companyModal" tabindex="-1" aria-labelledby="companyModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
+    <div class="modal fade" id="companyModal" tabindex="-1">
+        <div class="modal-dialog">
             <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="companyModalLabel">🏢 Aggiungi/Modifica Azienda</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
                 <form id="companyForm" onsubmit="saveCompany(event)">
+                    <div class="modal-header">
+                        <h5 class="modal-title">
+                            <i class="bi bi-building"></i> 🏢 Aggiungi/Modifica Azienda
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
                     <div class="modal-body">
                         <input type="hidden" id="company-id">
                         
                         <div class="mb-3">
                             <label for="company-name" class="form-label">Nome Azienda *</label>
-                            <input type="text" class="form-control" id="company-name" required>
+                            <input type="text" class="form-control" id="company-name" required 
+                                   placeholder="Inserisci il nome dell'azienda">
                         </div>
                         
                         <div class="mb-3">
                             <label for="company-description" class="form-label">Descrizione</label>
-                            <textarea class="form-control" id="company-description" rows="3" placeholder="Descrivi l'azienda e le sue attività..."></textarea>
+                            <textarea class="form-control" id="company-description" rows="3" 
+                                      placeholder="Descrivi l'azienda e la sua attività"></textarea>
                         </div>
                         
                         <div class="mb-3">
                             <label for="company-skills" class="form-label">Competenze Richieste</label>
-                            <input type="text" class="form-control" id="company-skills" placeholder="Es: Java, Marketing, Vendite (separate da virgole)">
+                            <input type="text" class="form-control" id="company-skills" 
+                                   placeholder="Es: JavaScript, Marketing, Vendite (separate da virgole)">
                         </div>
                         
                         <div class="mb-3">
@@ -259,12 +298,17 @@
                         
                         <div class="mb-3">
                             <label for="company-location" class="form-label">🏢 Sede Aziendale</label>
-                            <input type="text" class="form-control" id="company-location" placeholder="Es: Milano, Roma, Napoli, Torino...">
+                            <input type="text" class="form-control" id="company-location" 
+                                   placeholder="Es: Milano, Roma, Napoli">
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
-                        <button type="submit" class="btn btn-primary">Salva Azienda</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                            <i class="bi bi-x-circle"></i> Annulla
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-save"></i> Salva Azienda
+                        </button>
                     </div>
                 </form>
             </div>
@@ -272,60 +316,71 @@
     </div>
 
     <!-- Candidate Modal -->
-    <div class="modal fade" id="candidateModal" tabindex="-1" aria-labelledby="candidateModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
+    <div class="modal fade" id="candidateModal" tabindex="-1">
+        <div class="modal-dialog">
             <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="candidateModalLabel">👤 Aggiungi/Modifica Candidato</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
                 <form id="candidateForm" onsubmit="saveCandidate(event)">
+                    <div class="modal-header">
+                        <h5 class="modal-title">
+                            <i class="bi bi-person-plus"></i> 👤 Aggiungi/Modifica Candidato
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
                     <div class="modal-body">
                         <input type="hidden" id="candidate-id">
                         
                         <div class="mb-3">
                             <label for="candidate-name" class="form-label">Nome Completo *</label>
-                            <input type="text" class="form-control" id="candidate-name" required placeholder="Nome e Cognome">
+                            <input type="text" class="form-control" id="candidate-name" required 
+                                   placeholder="Inserisci nome e cognome">
                         </div>
                         
                         <div class="mb-3">
                             <label for="candidate-email" class="form-label">Email</label>
-                            <input type="email" class="form-control" id="candidate-email" placeholder="esempio@email.com">
+                            <input type="email" class="form-control" id="candidate-email" 
+                                   placeholder="nome@example.com">
                         </div>
                         
                         <div class="mb-3">
                             <label for="candidate-phone" class="form-label">Telefono</label>
-                            <input type="tel" class="form-control" id="candidate-phone" placeholder="Es: +39 123 456 7890">
+                            <input type="tel" class="form-control" id="candidate-phone" 
+                                   placeholder="Es: +39 123 456 7890">
                         </div>
                         
                         <div class="mb-3">
                             <label for="candidate-skills" class="form-label">Competenze</label>
-                            <input type="text" class="form-control" id="candidate-skills" placeholder="Es: JavaScript, Project Management, Comunicazione (separate da virgole)">
+                            <input type="text" class="form-control" id="candidate-skills" 
+                                   placeholder="Es: JavaScript, Marketing, Vendite (separate da virgole)">
                         </div>
                         
                         <div class="mb-3">
                             <label for="candidate-experience" class="form-label">Esperienze</label>
-                            <textarea class="form-control" id="candidate-experience" rows="4" placeholder="Descrivi le tue esperienze lavorative più rilevanti..."></textarea>
+                            <textarea class="form-control" id="candidate-experience" rows="3" 
+                                      placeholder="Descrivi le tue esperienze lavorative"></textarea>
                         </div>
                         
                         <div class="mb-3">
                             <label for="candidate-location" class="form-label">🏠 Luogo di Residenza</label>
-                            <input type="text" class="form-control" id="candidate-location" placeholder="Es: Milano, Roma, Napoli, Torino...">
+                            <input type="text" class="form-control" id="candidate-location" 
+                                   placeholder="Es: Milano, Roma, Napoli">
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
-                        <button type="submit" class="btn btn-primary">Salva Candidato</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                            <i class="bi bi-x-circle"></i> Annulla
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-save"></i> Salva Candidato
+                        </button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
 
-    <!-- Footer -->
-    <div class="footer">
-        <p>Copyright 2025 Alessandro Carenza</p>
-    </div>
+    <footer class="text-center mt-5 py-3 bg-light">
+        <small class="text-muted">Copyright 2025 Alessandro Carenza</small>
+    </footer>
 
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>

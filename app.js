@@ -1,4 +1,4 @@
-// JobMatch Platform - app.js Aggiornato con Sede e Residenza
+// JobMatch Platform - app.js Completo Aggiornato
 
 // Configurazione Supabase
 const SUPABASE_URL = 'https://cqntluwuhcxovktdcowl.supabase.co';
@@ -62,36 +62,57 @@ function setupEventListeners() {
         candidateForm.addEventListener('submit', saveCandidate);
     }
     
-    // Search handler
+    // Search handlers
     const globalSearch = document.getElementById('global-search');
+    const categoryFilter = document.getElementById('category-filter');
+    const typeFilter = document.getElementById('type-filter');
+    
     if (globalSearch) {
         globalSearch.addEventListener('input', performGlobalSearch);
     }
+    
+    if (categoryFilter) {
+        categoryFilter.addEventListener('change', performGlobalSearch);
+    }
+    
+    if (typeFilter) {
+        typeFilter.addEventListener('change', performGlobalSearch);
+    }
 }
 
-// ==================================== 
+// ====================================
 // FUNZIONI NAVIGAZIONE
 // ====================================
 
 function navigateToPage(pageId) {
     // Nascondi tutte le sezioni
     document.querySelectorAll('.page-section').forEach(section => {
-        section.classList.remove('active');
+        section.style.display = 'none';
     });
     
     // Mostra la sezione selezionata
-    const selectedPage = document.getElementById(pageId);
+    const selectedPage = document.getElementById(pageId + '-section');
     if (selectedPage) {
-        selectedPage.classList.add('active');
+        selectedPage.style.display = 'block';
     }
+    
+    // Aggiorna lo stato attivo dei bottoni di navigazione
+    document.querySelectorAll('[onclick*="navigateToPage"]').forEach(btn => {
+        btn.classList.remove('active');
+    });
     
     // Carica i dati per la pagina selezionata
     if (pageId === 'companies') {
         displayCompanies();
     } else if (pageId === 'candidates') {
         displayCandidates();
-    } else if (pageId === 'matching') {
-        // runMatching verrà chiamato quando l'utente clicca il bottone
+    } else if (pageId === 'dashboard') {
+        updateDashboardStats();
+        // Nascondi i risultati di ricerca quando si torna alla dashboard
+        const searchResults = document.getElementById('search-results-container');
+        if (searchResults) {
+            searchResults.style.display = 'none';
+        }
     }
 }
 
@@ -236,32 +257,26 @@ function displayCompanies() {
     companiesContainer.innerHTML = '';
     
     if (companies.length === 0) {
-        companiesContainer.innerHTML = '<p class="text-center text-muted">Nessuna azienda trovata</p>';
+        companiesContainer.innerHTML = '<div class="alert alert-info">Nessuna azienda trovata</div>';
         return;
     }
     
     companies.forEach(company => {
         const companyCard = document.createElement('div');
-        companyCard.className = 'card';
+        companyCard.className = 'card mb-3';
         companyCard.innerHTML = `
             <div class="card-body">
                 <h5 class="card-title">${company.nome}</h5>
                 <p class="card-text">${company.descrizione || 'Nessuna descrizione disponibile'}</p>
-                <div class="mb-2">
-                    <strong>Categoria:</strong> ${company.categoria || 'Non specificata'}
-                </div>
-                <div class="mb-2">
-                    <strong>Competenze richieste:</strong> ${company.competenze || 'Non specificate'}
-                </div>
-                <div class="mb-2">
-                    <strong>🏢 Sede:</strong> ${company.sede || 'Non specificata'}
-                </div>
-                <div class="btn-group btn-group-custom">
+                <p><strong>🏢 Sede:</strong> ${company.sede || 'Non specificata'}</p>
+                <p><strong>💼 Competenze:</strong> ${company.competenze || 'Non specificate'}</p>
+                <p><strong>📂 Categoria:</strong> ${company.categoria || 'Non specificata'}</p>
+                <div class="btn-group">
                     <button class="btn btn-sm btn-outline-primary" onclick="editCompany(${company.id})">
-                        ✏️ Modifica
+                        Modifica
                     </button>
                     <button class="btn btn-sm btn-outline-danger" onclick="deleteCompany(${company.id})">
-                        🗑️ Elimina
+                        Elimina
                     </button>
                 </div>
             </div>
@@ -302,7 +317,7 @@ function showCandidateForm() {
 function editCandidate(candidateId) {
     const candidate = candidates.find(c => c.id.toString() === candidateId.toString());
     if (candidate) {
-        // Pre-popola il form con i dati del candidato
+        // Pre-popola il form
         document.getElementById('candidate-id').value = candidate.id;
         document.getElementById('candidate-name').value = candidate.nome || '';
         document.getElementById('candidate-email').value = candidate.email || '';
@@ -349,7 +364,7 @@ async function saveCandidate(event) {
                 if (error) throw error;
             }
         } else {
-            // Modalità demo - salva in localStorage
+            // Modalità demo
             if (candidateId) {
                 const index = candidates.findIndex(c => c.id.toString() === candidateId);
                 if (index !== -1) {
@@ -413,37 +428,27 @@ function displayCandidates() {
     candidatesContainer.innerHTML = '';
     
     if (candidates.length === 0) {
-        candidatesContainer.innerHTML = '<p class="text-center text-muted">Nessun candidato trovato</p>';
+        candidatesContainer.innerHTML = '<div class="alert alert-info">Nessun candidato trovato</div>';
         return;
     }
     
     candidates.forEach(candidate => {
         const candidateCard = document.createElement('div');
-        candidateCard.className = 'card';
+        candidateCard.className = 'card mb-3';
         candidateCard.innerHTML = `
             <div class="card-body">
                 <h5 class="card-title">${candidate.nome}</h5>
-                <div class="mb-2">
-                    <strong>Email:</strong> ${candidate.email || 'Non specificata'}
-                </div>
-                <div class="mb-2">
-                    <strong>Telefono:</strong> ${candidate.telefono || 'Non specificato'}
-                </div>
-                <div class="mb-2">
-                    <strong>Competenze:</strong> ${candidate.competenze || 'Non specificate'}
-                </div>
-                <div class="mb-2">
-                    <strong>Esperienze:</strong> ${candidate.esperienze || 'Non specificate'}
-                </div>
-                <div class="mb-2">
-                    <strong>🏠 Residenza:</strong> ${candidate.residenza || 'Non specificata'}
-                </div>
-                <div class="btn-group btn-group-custom">
+                <p><strong>📧 Email:</strong> ${candidate.email || 'Non specificata'}</p>
+                <p><strong>📞 Telefono:</strong> ${candidate.telefono || 'Non specificato'}</p>
+                <p><strong>🏠 Residenza:</strong> ${candidate.residenza || 'Non specificata'}</p>
+                <p><strong>💼 Competenze:</strong> ${candidate.competenze || 'Non specificate'}</p>
+                <p><strong>📝 Esperienze:</strong> ${candidate.esperienze || 'Non specificate'}</p>
+                <div class="btn-group">
                     <button class="btn btn-sm btn-outline-primary" onclick="editCandidate(${candidate.id})">
-                        ✏️ Modifica
+                        Modifica
                     </button>
                     <button class="btn btn-sm btn-outline-danger" onclick="deleteCandidate(${candidate.id})">
-                        🗑️ Elimina
+                        Elimina
                     </button>
                 </div>
             </div>
@@ -453,18 +458,144 @@ function displayCandidates() {
 }
 
 // ====================================
-// FUNZIONI MATCHING E RICERCA
+// FUNZIONI RICERCA GLOBALE
 // ====================================
 
-// Esegui matching automatico
+// Esegue la ricerca globale e mostra i risultati nella homepage
+function performGlobalSearch() {
+    const searchTerm = document.getElementById('global-search').value.toLowerCase().trim();
+    const categoryFilter = document.getElementById('category-filter').value;
+    const typeFilter = document.getElementById('type-filter').value;
+    
+    const resultsContainer = document.getElementById('search-results-container');
+    const resultsContent = document.getElementById('search-results-content');
+    
+    // Se la ricerca è vuota, nascondi i risultati
+    if (!searchTerm && !categoryFilter && typeFilter === 'all') {
+        if (resultsContainer) {
+            resultsContainer.style.display = 'none';
+        }
+        return;
+    }
+    
+    let filteredCompanies = [];
+    let filteredCandidates = [];
+    
+    // Filtra le aziende se richiesto
+    if (typeFilter === 'all' || typeFilter === 'companies') {
+        filteredCompanies = companies.filter(company => {
+            const matchesSearch = !searchTerm || 
+                (company.nome && company.nome.toLowerCase().includes(searchTerm)) ||
+                (company.descrizione && company.descrizione.toLowerCase().includes(searchTerm)) ||
+                (company.competenze && company.competenze.toLowerCase().includes(searchTerm)) ||
+                (company.sede && company.sede.toLowerCase().includes(searchTerm));
+            
+            const matchesCategory = !categoryFilter || company.categoria === categoryFilter;
+            
+            return matchesSearch && matchesCategory;
+        });
+    }
+    
+    // Filtra i candidati se richiesto
+    if (typeFilter === 'all' || typeFilter === 'candidates') {
+        filteredCandidates = candidates.filter(candidate => {
+            const matchesSearch = !searchTerm ||
+                (candidate.nome && candidate.nome.toLowerCase().includes(searchTerm)) ||
+                (candidate.email && candidate.email.toLowerCase().includes(searchTerm)) ||
+                (candidate.competenze && candidate.competenze.toLowerCase().includes(searchTerm)) ||
+                (candidate.esperienze && candidate.esperienze.toLowerCase().includes(searchTerm)) ||
+                (candidate.residenza && candidate.residenza.toLowerCase().includes(searchTerm));
+            
+            return matchesSearch;
+        });
+    }
+    
+    // Genera HTML per i risultati
+    let resultsHTML = '';
+    
+    // Mostra risultati aziende
+    if (filteredCompanies.length > 0) {
+        resultsHTML += `<h5 class="text-primary mb-3">🏢 Aziende trovate (${filteredCompanies.length})</h5>`;
+        filteredCompanies.forEach(company => {
+            resultsHTML += `
+                <div class="card company-card mb-3">
+                    <div class="card-body">
+                        <h6 class="card-title">${company.nome}</h6>
+                        <p class="card-text">${company.descrizione || 'Nessuna descrizione disponibile'}</p>
+                        <p><strong>🏢 Sede:</strong> ${company.sede || 'Non specificata'}</p>
+                        <p><strong>💼 Competenze:</strong> ${company.competenze || 'Non specificate'}</p>
+                        <p><strong>📂 Categoria:</strong> ${company.categoria || 'Non specificata'}</p>
+                        <div class="btn-group">
+                            <button class="btn btn-sm btn-outline-primary" onclick="editCompany(${company.id})">
+                                Modifica
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="deleteCompany(${company.id})">
+                                Elimina
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+    }
+    
+    // Mostra risultati candidati
+    if (filteredCandidates.length > 0) {
+        if (filteredCompanies.length > 0) resultsHTML += '<hr class="my-4">';
+        resultsHTML += `<h5 class="text-success mb-3">👤 Candidati trovati (${filteredCandidates.length})</h5>`;
+        filteredCandidates.forEach(candidate => {
+            resultsHTML += `
+                <div class="card candidate-card mb-3">
+                    <div class="card-body">
+                        <h6 class="card-title">${candidate.nome}</h6>
+                        <p><strong>📧 Email:</strong> ${candidate.email || 'Non specificata'}</p>
+                        <p><strong>📞 Telefono:</strong> ${candidate.telefono || 'Non specificato'}</p>
+                        <p><strong>🏠 Residenza:</strong> ${candidate.residenza || 'Non specificata'}</p>
+                        <p><strong>💼 Competenze:</strong> ${candidate.competenze || 'Non specificate'}</p>
+                        <p><strong>📝 Esperienze:</strong> ${candidate.esperienze || 'Non specificate'}</p>
+                        <div class="btn-group">
+                            <button class="btn btn-sm btn-outline-primary" onclick="editCandidate(${candidate.id})">
+                                Modifica
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="deleteCandidate(${candidate.id})">
+                                Elimina
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+    }
+    
+    // Mostra messaggio se nessun risultato
+    if (filteredCompanies.length === 0 && filteredCandidates.length === 0) {
+        resultsHTML = `
+            <div class="alert alert-info">
+                <i class="bi bi-info-circle"></i> Nessun risultato trovato per i criteri di ricerca specificati.
+            </div>
+        `;
+    }
+    
+    // Aggiorna il contenuto e mostra la sezione risultati
+    if (resultsContent) {
+        resultsContent.innerHTML = resultsHTML;
+    }
+    if (resultsContainer) {
+        resultsContainer.style.display = 'block';
+    }
+}
+
+// ====================================
+// FUNZIONI MATCHING
+// ====================================
+
+// Esegue il matching automatico
 function runMatching() {
-    const matchingResults = document.getElementById('matching-results');
+    const matchingResults = document.getElementById('matching-result');
     if (!matchingResults) return;
     
-    matchingResults.innerHTML = '';
-    
     if (companies.length === 0 || candidates.length === 0) {
-        matchingResults.innerHTML = '<p class="text-center text-muted">Serve almeno una azienda e un candidato per il matching</p>';
+        matchingResults.innerHTML = '<div class="alert alert-warning">Serve almeno una azienda e un candidato per il matching</div>';
         return;
     }
     
@@ -499,105 +630,88 @@ function runMatching() {
     matches.sort((a, b) => b.compatibility - a.compatibility);
     
     if (matches.length === 0) {
-        matchingResults.innerHTML = '<p class="text-center text-muted">Nessun match trovato</p>';
+        matchingResults.innerHTML = '<div class="alert alert-info">Nessun match trovato</div>';
         return;
     }
     
-    matches.forEach(match => {
-        const matchDiv = document.createElement('div');
-        matchDiv.className = 'match-result';
-        matchDiv.innerHTML = `
-            <h6>🤝 Match ${match.compatibility}%</h6>
-            <div class="row">
-                <div class="col-md-6">
-                    <strong>🏢 ${match.company.nome}</strong>
-                    <br>Sede: ${match.company.sede || 'Non specificata'}
-                    <br>Cerca: ${match.company.competenze || 'N/A'}
+    let matchHTML = '<h4>Risultati Matching</h4>';
+    matches.forEach((match, index) => {
+        matchHTML += `
+            <div class="card mb-3 ${index === 0 ? 'border-success' : ''}">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-5">
+                            <h6 class="text-primary">🏢 ${match.company.nome}</h6>
+                            <p><strong>Sede:</strong> ${match.company.sede || 'Non specificata'}</p>
+                            <p><strong>Categoria:</strong> ${match.company.categoria || 'Non specificata'}</p>
+                        </div>
+                        <div class="col-md-2 text-center">
+                            <div class="badge bg-${match.compatibility >= 70 ? 'success' : match.compatibility >= 50 ? 'warning' : 'secondary'} fs-6">
+                                ${match.compatibility}% Match
+                            </div>
+                            <br><small class="text-muted">Competenze comuni: ${match.commonSkills.length}</small>
+                        </div>
+                        <div class="col-md-5">
+                            <h6 class="text-success">👤 ${match.candidate.nome}</h6>
+                            <p><strong>Residenza:</strong> ${match.candidate.residenza || 'Non specificata'}</p>
+                            <p><strong>Email:</strong> ${match.candidate.email || 'Non specificata'}</p>
+                        </div>
+                    </div>
+                    <div class="mt-2">
+                        <strong>Competenze in comune:</strong> 
+                        ${match.commonSkills.map(skill => `<span class="badge bg-light text-dark me-1">${skill}</span>`).join('')}
+                    </div>
                 </div>
-                <div class="col-md-6">
-                    <strong>👤 ${match.candidate.nome}</strong>
-                    <br>Residenza: ${match.candidate.residenza || 'Non specificata'}
-                    <br>Competenze: ${match.candidate.competenze || 'N/A'}
-                </div>
-            </div>
-            <div class="mt-2">
-                <strong>Competenze in comune:</strong> ${match.commonSkills.join(', ')}
             </div>
         `;
-        matchingResults.appendChild(matchDiv);
     });
-}
-
-// Ricerca globale
-function performGlobalSearch() {
-    const searchTerm = document.getElementById('global-search').value.toLowerCase();
-    const categoryFilter = document.getElementById('category-filter').value;
-    const skillsFilter = document.getElementById('skills-filter').value.toLowerCase();
-    const typeFilter = document.getElementById('type-filter').value;
     
-    let filteredCompanies = companies;
-    let filteredCandidates = candidates;
-    
-    // Applica filtri
-    if (searchTerm) {
-        filteredCompanies = filteredCompanies.filter(company => 
-            (company.nome || '').toLowerCase().includes(searchTerm) ||
-            (company.descrizione || '').toLowerCase().includes(searchTerm) ||
-            (company.competenze || '').toLowerCase().includes(searchTerm) ||
-            (company.categoria || '').toLowerCase().includes(searchTerm) ||
-            (company.sede || '').toLowerCase().includes(searchTerm)
-        );
-        
-        filteredCandidates = filteredCandidates.filter(candidate => 
-            (candidate.nome || '').toLowerCase().includes(searchTerm) ||
-            (candidate.email || '').toLowerCase().includes(searchTerm) ||
-            (candidate.competenze || '').toLowerCase().includes(searchTerm) ||
-            (candidate.esperienze || '').toLowerCase().includes(searchTerm) ||
-            (candidate.residenza || '').toLowerCase().includes(searchTerm)
-        );
-    }
-    
-    if (categoryFilter) {
-        filteredCompanies = filteredCompanies.filter(company => company.categoria === categoryFilter);
-    }
-    
-    if (skillsFilter) {
-        filteredCompanies = filteredCompanies.filter(company => 
-            (company.competenze || '').toLowerCase().includes(skillsFilter)
-        );
-        filteredCandidates = filteredCandidates.filter(candidate => 
-            (candidate.competenze || '').toLowerCase().includes(skillsFilter)
-        );
-    }
-    
-    // Mostra risultati
-    console.log('Risultati ricerca:', { filteredCompanies, filteredCandidates });
-    
-    // Aggiorna temporaneamente le liste (you could implement this differently)
-    if (typeFilter === 'companies' || typeFilter === '') {
-        companies = filteredCompanies;
-        displayCompanies();
-    }
-    if (typeFilter === 'candidates' || typeFilter === '') {
-        candidates = filteredCandidates;
-        displayCandidates();
-    }
+    matchingResults.innerHTML = matchHTML;
 }
 
 // ====================================
-// FUNZIONI UTILITY
+// FUNZIONI DASHBOARD E STATISTICHE
 // ====================================
 
-// Aggiorna statistiche dashboard
+// Aggiorna le statistiche nella dashboard
 function updateDashboardStats() {
-    const totalCompaniesEl = document.getElementById('total-companies');
-    const totalCandidatesEl = document.getElementById('total-candidates');
+    const totalCompaniesElement = document.getElementById('total-companies');
+    const totalCandidatesElement = document.getElementById('total-candidates');
     
-    if (totalCompaniesEl) {
-        totalCompaniesEl.textContent = companies.length;
+    if (totalCompaniesElement) {
+        totalCompaniesElement.textContent = companies.length;
     }
     
-    if (totalCandidatesEl) {
-        totalCandidatesEl.textContent = candidates.length;
+    if (totalCandidatesElement) {
+        totalCandidatesElement.textContent = candidates.length;
     }
+}
+
+// ====================================
+// UTILITÀ E FUNZIONI HELPER
+// ====================================
+
+// Pulisce i form
+function resetForms() {
+    const companyForm = document.getElementById('companyForm');
+    const candidateForm = document.getElementById('candidateForm');
+    
+    if (companyForm) companyForm.reset();
+    if (candidateForm) candidateForm.reset();
+}
+
+// Gestisce gli errori
+function handleError(error, message) {
+    console.error(message, error);
+    alert(message);
+}
+
+// Valida i dati del form
+function validateForm(formData, requiredFields) {
+    for (let field of requiredFields) {
+        if (!formData[field] || formData[field].trim() === '') {
+            return false;
+        }
+    }
+    return true;
 }
